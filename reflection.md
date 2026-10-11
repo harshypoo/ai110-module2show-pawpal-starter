@@ -4,13 +4,22 @@
 
 **a. Initial design**
 
-- Briefly describe your initial UML design.
+- Briefly describe your initial UML design. 
+This design handles the pet owner, pet, tasks, and daily schedule. It has all the methods that
+a pet owner would require to handle the daily tasks for a pet. It describes the function of the app
+in one diagram.
 - What classes did you include, and what responsibilities did you assign to each?
+I included the Pet, PetOwner, CareTask, and Scheduler classes. Scheduler makes a schedule for the tasks,
+PetOwner is the owner of the pet, Pet is the animal, and CareTask is a task for the pet.
 
 **b. Design changes**
 
 - Did your design change during implementation?
+Yes.
 - If yes, describe at least one change and why you made it.
+I changed the daily time budget, PetOwner.available_minutes, because it only accounts for one pet. If there are
+multiple pets, then the daily time budget is split across all of those pets. It conflicts with the pet(s) 
+requirements. 
 
 ---
 

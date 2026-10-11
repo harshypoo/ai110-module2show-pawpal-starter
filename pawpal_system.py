@@ -1,33 +1,38 @@
-"""Core class skeletons for the PawPal+ pet-care planner.
+"""Class skeletons for the PawPal+ pet-care planner.
 
-The classes in this file mirror the first UML draft.  Their methods are
-intentionally placeholders; scheduling behavior will be added in a later step.
+These dataclasses define the system design only.  Scheduling behavior will be
+implemented in a later step.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import time
+from uuid import uuid4
 
 
 @dataclass
-class PetOwner:
-    """A person who owns pets and has time/preferences for their care."""
+class CareTask:
+    """One pet-care activity, such as feeding, walking, or medication."""
 
-    name: str
-    available_minutes: int = 0
-    preferences: dict[str, str] = field(default_factory=dict)
-    pets: list[Pet] = field(default_factory=list)
+    title: str
+    duration_minutes: int
+    priority: str
+    category: str = "general"
+    recurring: bool = False
+    preferred_time: str | None = None
+    task_id: str = field(default_factory=lambda: str(uuid4()))
 
-    def add_pet(self, pet: Pet) -> None:
-        """Add a pet to this owner's care."""
+    def is_high_priority(self) -> bool:
+        """Return whether this task is marked high priority."""
         pass
 
-    def update_preference(self, setting: str, value: str) -> None:
-        """Save one scheduling preference."""
+    def fits_within(self, minutes: int) -> bool:
+        """Return whether this task can fit in a time limit."""
         pass
 
-    def get_available_time(self) -> int:
-        """Return the time the owner has available today."""
+    def get_priority_score(self) -> int:
+        """Return a numeric score used for sorting tasks."""
         pass
 
 
@@ -44,8 +49,8 @@ class Pet:
         """Associate a care task with this pet."""
         pass
 
-    def remove_task(self, task_title: str) -> bool:
-        """Remove a task by title and report whether it was found."""
+    def remove_task(self, task_id: str) -> bool:
+        """Remove a task by its unique ID."""
         pass
 
     def get_tasks(self) -> list[CareTask]:
@@ -54,51 +59,51 @@ class Pet:
 
 
 @dataclass
-class CareTask:
-    """One pet-care activity, such as feeding, walking, or medication."""
+class PetOwner:
+    """A person who owns pets and has time/preferences for their care."""
 
-    title: str
-    duration_minutes: int
-    priority: str
-    category: str = "general"
-    recurring: bool = False
-    preferred_time: str | None = None
+    name: str
+    available_minutes: int = 0
+    preferences: dict[str, object] = field(default_factory=dict)
+    pets: list[Pet] = field(default_factory=list)
 
-    def is_high_priority(self) -> bool:
-        """Return whether this task is marked high priority."""
+    def add_pet(self, pet: Pet) -> None:
+        """Add a pet to this owner's care."""
         pass
 
-    def fits_within(self, minutes: int) -> bool:
-        """Return whether this task can fit in a time limit."""
+    def update_preference(self, setting: str, value: object) -> None:
+        """Save one scheduling preference."""
         pass
 
-    def get_priority_score(self) -> int:
-        """Return a numeric score used for sorting tasks."""
+    def get_available_time(self) -> int:
+        """Return the time the owner has available today."""
         pass
 
 
 @dataclass
 class Scheduler:
-    """Builds and explains a daily pet-care plan."""
+    """Builds one daily plan for all of an owner's pets."""
 
-    schedule: list[dict[str, object]] = field(default_factory=list)
-    skipped_tasks: list[CareTask] = field(default_factory=list)
+    start_time: time = field(default_factory=lambda: time(hour=8))
+    schedule: list[dict[str, object]] = field(default_factory=list, init=False)
+    skipped_tasks: list[CareTask] = field(default_factory=list, init=False)
 
-    def sort_tasks(self, tasks: list[CareTask]) -> list[CareTask]:
-        """Order tasks according to scheduling rules."""
+    def sort_tasks(
+        self, tasks: list[CareTask], prioritize_short_tasks: bool = False
+    ) -> list[CareTask]:
+        """Order tasks according to priority and owner preferences."""
         pass
 
     def filter_tasks_by_time(
         self, tasks: list[CareTask], available_minutes: int
     ) -> list[CareTask]:
-        """Keep only tasks that fit within the available time."""
+        """Keep tasks that fit within the available daily time."""
         pass
 
-    def build_daily_plan(self, owner: PetOwner, pet: Pet) -> list[dict[str, object]]:
-        """Create a plan for one pet using the owner's constraints."""
+    def build_daily_plan(self, owner: PetOwner) -> list[dict[str, object]]:
+        """Create one plan across every pet owned by the given owner."""
         pass
 
     def explain_plan(self) -> list[str]:
         """Explain why tasks were scheduled or skipped."""
         pass
-

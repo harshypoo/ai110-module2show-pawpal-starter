@@ -1,0 +1,47 @@
+classDiagram
+    class PetOwner {
+        +str name
+        +int available_minutes
+        +dict preferences
+        +list~Pet~ pets
+        +add_pet(pet: Pet) void
+        +update_preference(setting: str, value: str) void
+        +get_available_time() int
+    }
+
+    class Pet {
+        +str name
+        +str species
+        +int age
+        +list~CareTask~ care_tasks
+        +add_task(task: CareTask) void
+        +remove_task(task_title: str) bool
+        +get_tasks() list~CareTask~
+    }
+
+    class CareTask {
+        +str title
+        +int duration_minutes
+        +str priority
+        +str category
+        +bool recurring
+        +str preferred_time
+        +is_high_priority() bool
+        +fits_within(minutes: int) bool
+        +get_priority_score() int
+    }
+
+    class Scheduler {
+        +list~dict~ schedule
+        +list~CareTask~ skipped_tasks
+        +sort_tasks(tasks: list~CareTask~) list~CareTask~
+        +filter_tasks_by_time(tasks: list~CareTask~, available_minutes: int) list~CareTask~
+        +build_daily_plan(owner: PetOwner, pet: Pet) list~dict~
+        +explain_plan() list~str~
+    }
+
+    PetOwner "1" --> "0..*" Pet : owns
+    Pet "1" --> "0..*" CareTask : needs
+    Scheduler --> PetOwner : uses constraints
+    Scheduler --> Pet : plans care for
+    Scheduler --> CareTask : schedules

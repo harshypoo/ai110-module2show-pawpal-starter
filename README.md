@@ -47,11 +47,12 @@ pip install -r requirements.txt
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
 ```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
+Today's Schedule
+==================
+07:30 — Biscuit: Morning walk (daily)
+08:00 — Mochi: Breakfast (daily)
+17:30 — Mochi: Playtime (daily)
+20:00 — Biscuit: Medication (daily)
 ```
 
 ## 🧪 Testing PawPal+
@@ -80,6 +81,13 @@ Sample test output:
 | Filtering | | e.g., skip tasks if time runs out |
 | Conflict handling | | e.g., overlapping time slots |
 | Recurring tasks | | e.g., daily vs. weekly |
+
+## Implementation Summary
+The app now has all the logic implemented to include Task, Pet, Owner, and Scheduler objects. Task represents
+one task for the pet with a description, time, frequency, completion status, ID, and the pet's name.
+The Pet is the actual pet's information and task list. Owner is the person managing the pets. Scheduler
+is the planning brain that helps the owner organize all tasks, retrieve all tasks, sort, and get a schedule.
+All of these come together to organize all tasks that the owner wants for a specific pet.
 
 ## 📸 Demo Walkthrough
 

@@ -1,109 +1,127 @@
-"""Class skeletons for the PawPal+ pet-care planner.
-
-These dataclasses define the system design only.  Scheduling behavior will be
-implemented in a later step.
-"""
+"""Core models and scheduling logic for the PawPal+ pet-care planner."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import time
+from datetime import datetime
 from uuid import uuid4
 
 
 @dataclass
-class CareTask:
-    """One pet-care activity, such as feeding, walking, or medication."""
+class Task:
+    """A single care activity assigned to a pet."""
 
-    title: str
-    duration_minutes: int
-    priority: str
-    category: str = "general"
-    recurring: bool = False
-    preferred_time: str | None = None
+    description: str
+    time: str
+    frequency: str
+    completed: bool = False
     task_id: str = field(default_factory=lambda: str(uuid4()))
+    pet_name: str | None = None
 
-    def is_high_priority(self) -> bool:
-        """Return whether this task is marked high priority."""
-        pass
+    def __post_init__(self) -> None:
+        """Normalize task text and ensure the scheduled time is usable."""
+        self.description = self.description.strip()
+        self.frequency = self.frequency.lower().strip()
+        if not self.description:
+            raise ValueError("A task needs a description.")
+        if not self.frequency:
+            raise ValueError("A task needs a frequency.")
 
-    def fits_within(self, minutes: int) -> bool:
-        """Return whether this task can fit in a time limit."""
-        pass
+        try:
+            self.time = datetime.strptime(self.time, "%H:%M").strftime("%H:%M")
+        except ValueError as error:
+            raise ValueError("time must use 24-hour HH:MM format.") from error
 
-    def get_priority_score(self) -> int:
-        """Return a numeric score used for sorting tasks."""
-        pass
+    def mark_complete(self) -> None:
+        """Mark this task as completed."""
+        self.completed = True
+
+    def mark_incomplete(self) -> None:
+        """Mark this task as not completed."""
+        self.completed = False
 
 
 @dataclass
 class Pet:
-    """A pet and the care tasks associated with it."""
+    """Stores pet details and the care tasks assigned to that pet."""
 
     name: str
     species: str
     age: int = 0
-    care_tasks: list[CareTask] = field(default_factory=list)
+    tasks: list[Task] = field(default_factory=list)
 
-    def add_task(self, task: CareTask) -> None:
-        """Associate a care task with this pet."""
-        pass
+    def add_task(self, task: Task) -> None:
+        """Add one care task to this pet."""
+        if any(existing.task_id == task.task_id for existing in self.tasks):
+            raise ValueError("This task is already assigned to the pet.")
+        task.pet_name = self.name
+        self.tasks.append(task)
 
     def remove_task(self, task_id: str) -> bool:
-        """Remove a task by its unique ID."""
-        pass
+        """Remove a task by ID and report whether it was found."""
+        for task in self.tasks:
+            if task.task_id == task_id:
+                self.tasks.remove(task)
+                return True
+        return False
 
-    def get_tasks(self) -> list[CareTask]:
-        """Return this pet's care tasks."""
-        pass
+    def get_tasks(self) -> list[Task]:
+        """Return a copy of this pet's tasks."""
+        return self.tasks.copy()
 
 
 @dataclass
-class PetOwner:
-    """A person who owns pets and has time/preferences for their care."""
+class Owner:
+    """Manages multiple pets and provides access to their combined tasks."""
 
     name: str
-    available_minutes: int = 0
-    preferences: dict[str, object] = field(default_factory=dict)
     pets: list[Pet] = field(default_factory=list)
 
     def add_pet(self, pet: Pet) -> None:
         """Add a pet to this owner's care."""
-        pass
+        if all(existing is not pet for existing in self.pets):
+            self.pets.append(pet)
 
-    def update_preference(self, setting: str, value: object) -> None:
-        """Save one scheduling preference."""
-        pass
+    def remove_pet(self, pet_name: str) -> bool:
+        """Remove the first pet with the given name, if present."""
+        for pet in self.pets:
+            if pet.name == pet_name:
+                self.pets.remove(pet)
+                return True
+        return False
 
-    def get_available_time(self) -> int:
-        """Return the time the owner has available today."""
-        pass
+    def get_all_tasks(self) -> list[Task]:
+        """Return tasks from every pet owned by this owner."""
+        return [task for pet in self.pets for task in pet.get_tasks()]
 
 
 @dataclass
 class Scheduler:
-    """Builds one daily plan for all of an owner's pets."""
+    """The planning brain that retrieves and organizes tasks across pets."""
 
-    start_time: time = field(default_factory=lambda: time(hour=8))
-    schedule: list[dict[str, object]] = field(default_factory=list, init=False)
-    skipped_tasks: list[CareTask] = field(default_factory=list, init=False)
+    schedule: list[Task] = field(default_factory=list, init=False)
 
-    def sort_tasks(
-        self, tasks: list[CareTask], prioritize_short_tasks: bool = False
-    ) -> list[CareTask]:
-        """Order tasks according to priority and owner preferences."""
-        pass
+    def retrieve_tasks(self, owner: Owner) -> list[Task]:
+        """Retrieve every task through the owner's combined-task method."""
+        return owner.get_all_tasks()
 
-    def filter_tasks_by_time(
-        self, tasks: list[CareTask], available_minutes: int
-    ) -> list[CareTask]:
-        """Keep tasks that fit within the available daily time."""
-        pass
+    def organize_tasks(self, owner: Owner) -> list[Task]:
+        """Return incomplete tasks ordered by their scheduled time."""
+        tasks = self.retrieve_tasks(owner)
+        return sorted(
+            (task for task in tasks if not task.completed),
+            key=lambda task: (task.time, task.description.lower()),
+        )
 
-    def build_daily_plan(self, owner: PetOwner) -> list[dict[str, object]]:
-        """Create one plan across every pet owned by the given owner."""
-        pass
+    def build_schedule(self, owner: Owner) -> list[Task]:
+        """Create and store a schedule spanning all of the owner's pets."""
+        self.schedule = self.organize_tasks(owner)
+        return self.schedule.copy()
 
-    def explain_plan(self) -> list[str]:
-        """Explain why tasks were scheduled or skipped."""
-        pass
+    def complete_task(self, owner: Owner, task_id: str) -> bool:
+        """Mark one task complete after finding it among all owner tasks."""
+        for task in self.retrieve_tasks(owner):
+            if task.task_id == task_id:
+                task.mark_complete()
+                return True
+        return False

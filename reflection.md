@@ -42,12 +42,21 @@ requirements.
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+I used AI to brainstorm the UML design and understand what we would need to make this app completely cohesive.
+I then asked it to implement logic and brainstormed with it more to understand what other features we could
+add to future-proof this app.
 - What kinds of prompts or questions were most helpful?
+The prompts where I was conversing back and forth and getting an understanding of the system design was
+very helpful. The implementation was a plus, but the design matters more.
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
+The AI was trying to assign different names for a class, but I wanted to keep it simple and not make
+developers confused when reading the code, so I kept it simple and did not use multiple names for one class.
 - How did you evaluate or verify what the AI suggested?
+I used the tests provided by the AI and also referred to the UML to ensure that all of the classes are
+cohesive and line up with what we are trying to accomplish with this app.
 
 ---
 

@@ -1,49 +1,42 @@
 classDiagram
-    class PetOwner {
-        +str name
-        +int available_minutes
-        +dict preferences
-        +list~Pet~ pets
-        +add_pet(pet: Pet) void
-        +update_preference(setting: str, value: object) void
-        +get_available_time() int
+    class Task {
+        +str description
+        +str time
+        +str frequency
+        +bool completed
+        +str task_id
+        +str pet_name
+        +mark_complete() void
+        +mark_incomplete() void
     }
 
     class Pet {
         +str name
         +str species
         +int age
-        +list~CareTask~ care_tasks
-        +add_task(task: CareTask) void
+        +list~Task~ tasks
+        +add_task(task: Task) void
         +remove_task(task_id: str) bool
-        +get_tasks() list~CareTask~
+        +get_tasks() list~Task~
     }
 
-    class CareTask {
-        +str title
-        +int duration_minutes
-        +str priority
-        +str category
-        +bool recurring
-        +str preferred_time
-        +str task_id
-        +is_high_priority() bool
-        +fits_within(minutes: int) bool
-        +get_priority_score() int
+    class Owner {
+        +str name
+        +list~Pet~ pets
+        +add_pet(pet: Pet) void
+        +remove_pet(pet_name: str) bool
+        +get_all_tasks() list~Task~
     }
 
     class Scheduler {
-        +time start_time
-        +list~dict~ schedule
-        +list~CareTask~ skipped_tasks
-        +sort_tasks(tasks: list~CareTask~, prioritize_short_tasks: bool) list~CareTask~
-        +filter_tasks_by_time(tasks: list~CareTask~, available_minutes: int) list~CareTask~
-        +build_daily_plan(owner: PetOwner) list~dict~
-        +explain_plan() list~str~
+        +list~Task~ schedule
+        +retrieve_tasks(owner: Owner) list~Task~
+        +organize_tasks(owner: Owner) list~Task~
+        +build_schedule(owner: Owner) list~Task~
+        +complete_task(owner: Owner, task_id: str) bool
     }
 
-    PetOwner "1" --> "0..*" Pet : owns
-    Pet "1" --> "0..*" CareTask : needs
-    Scheduler --> PetOwner : uses constraints
-    Scheduler --> Pet : plans care for
-    Scheduler --> CareTask : schedules
+    Owner "1" --> "0..*" Pet : manages
+    Pet "1" --> "0..*" Task : has
+    Scheduler --> Owner : retrieves get_all_tasks()
+    Scheduler --> Task : organizes

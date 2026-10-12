@@ -42,18 +42,11 @@ class Task:
         self.completed = False
 
     def is_recurring(self) -> bool:
-        """Return ``True`` when this task repeats daily or weekly.
-
-        One-time tasks return ``False`` and are not recreated after completion.
-        """
+        """Return whether this task repeats on a daily or weekly schedule."""
         return self.frequency in {"daily", "weekly"}
 
     def create_next_occurrence(self) -> Task | None:
-        """Create a new incomplete occurrence for a recurring task.
-
-        A daily task is scheduled for tomorrow and a weekly task is scheduled
-        for one week from today. One-time tasks return ``None``.
-        """
+        """Create the next daily or weekly occurrence with an accurate date."""
         if self.frequency == "daily":
             next_date = date.today() + timedelta(days=1)
         elif self.frequency == "weekly":
@@ -133,14 +126,7 @@ class Scheduler:
         return owner.get_all_tasks()
 
     def sort_by_time(self, tasks: list[Task]) -> list[Task]:
-        """Return a new task list ordered by its zero-padded ``HH:MM`` time.
-
-        Args:
-            tasks: The tasks to order; the original list is not modified.
-
-        Returns:
-            A chronologically ordered list of the supplied tasks.
-        """
+        """Return a new task list ordered by its HH:MM scheduled time."""
         return sorted(tasks, key=lambda task: task.time)
 
     def filter_tasks(
@@ -150,17 +136,7 @@ class Scheduler:
         completed: bool | None = None,
         pet_name: str | None = None,
     ) -> list[Task]:
-        """Return owner tasks matching optional completion and pet filters.
-
-        Args:
-            owner: The owner whose pet tasks should be searched.
-            completed: ``True`` for complete tasks, ``False`` for incomplete
-                tasks, or ``None`` to include either status.
-            pet_name: A case-insensitive pet name, or ``None`` for all pets.
-
-        Returns:
-            Every task that satisfies all supplied filters.
-        """
+        """Return owner tasks matching an optional status and/or pet name."""
         normalized_pet_name = pet_name.strip().casefold() if pet_name else None
         return [
             task
@@ -176,19 +152,7 @@ class Scheduler:
     def get_recurring_tasks(
         self, owner: Owner, *, frequency: str | None = None
     ) -> list[Task]:
-        """Return incomplete daily and weekly tasks for an owner.
-
-        Args:
-            owner: The owner whose tasks should be searched.
-            frequency: Optionally limit results to ``"daily"`` or
-                ``"weekly"``; case is ignored.
-
-        Returns:
-            Incomplete recurring tasks matching the optional frequency.
-
-        Raises:
-            ValueError: If ``frequency`` is not daily or weekly.
-        """
+        """Return incomplete daily/weekly tasks, optionally for one frequency."""
         normalized_frequency = frequency.lower().strip() if frequency else None
         if normalized_frequency is not None and normalized_frequency not in {"daily", "weekly"}:
             raise ValueError("frequency must be daily or weekly when filtering recurring tasks.")
@@ -202,12 +166,7 @@ class Scheduler:
         ]
 
     def detect_conflicts(self, owner: Owner) -> list[str]:
-        """Return non-blocking warnings for duplicate pet date-and-time slots.
-
-        Incomplete tasks conflict only when they belong to the same pet and
-        share both ``scheduled_date`` and ``time``. Tasks for different pets
-        or on different dates do not conflict.
-        """
+        """Return warnings when one pet has tasks in the same date-and-time slot."""
         warnings: list[str] = []
         for pet in owner.pets:
             tasks_by_slot: dict[tuple[date, str], list[Task]] = {}
@@ -237,15 +196,7 @@ class Scheduler:
         return self.schedule.copy()
 
     def complete_task(self, owner: Owner, task_id: str) -> bool:
-        """Complete one task and add a future occurrence when it recurs.
-
-        Daily and weekly tasks remain in the pet's history as complete and
-        gain a new incomplete task. One-time tasks are only marked complete.
-
-        Returns:
-            ``True`` when a matching task belongs to the owner; otherwise
-            ``False``.
-        """
+        """Complete a task and create its next occurrence when it recurs."""
         for pet in owner.pets:
             for task in pet.tasks:
                 if task.task_id != task_id:

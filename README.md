@@ -64,11 +64,26 @@ pytest
 # Run with coverage:
 pytest --cov
 ```
+python -m pytest
+This command runs the test suite that covers all happy cases such as sorting correctly,
+daily and weekly tasks creating a new instance if completed, one-time tasks not recurring,
+conflicts being detected, and recurring tasks being filtered. It also includes edge cases
+such as equal-time sorting, complete a recurring task twice does not create duplicates,
+completed tasks do not count as conflicts, unkown tasks are False, invalid times are errors,
+and frequency filters handle extra space or reject unsupported values.
 
-Sample test output:
-
+I am 4/5 stars confident on this program using the test suite and the code created.
 ```
-# Paste your pytest output here
+
+============================================================ test session starts ============================================================
+platform darwin -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/harshpatel/Desktop/AI110/ai110-module2show-pawpal-starter
+plugins: anyio-4.15.1
+collected 19 items                                                                                                                          
+
+tests/test_pawpal.py ...................                                                                                              [100%]
+
+============================================================ 19 passed in 0.02s =============================================================
 ```
 
 ## 📐 Smarter Scheduling

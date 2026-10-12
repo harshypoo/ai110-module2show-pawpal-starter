@@ -77,10 +77,12 @@ Sample test output:
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | Scheduler.sort_by_time() | Uses sorted method and lambda to validate by HH:MM |
+| Filtering | Scheduler.filter_tasks() | Filters tasks by copmletion status, pet name, or both. |
+| Conflict handling | Scheduler.detect_conflicts() | Displays warning message when same pet has multiple 
+incomplete tasks on same day and time. Different pets or dates do not conflict. |
+| Recurring tasks | Task.is_recurring() and Task.create_next_occurence() and Scheduler.get_recurring_tasks() 
+and Scheduler.complete_task() | Daily and weekly tasks new instance after completion unless it's one-time. |
 
 ## Implementation Summary
 The app now has all the logic implemented to include Task, Pet, Owner, and Scheduler objects. Task represents

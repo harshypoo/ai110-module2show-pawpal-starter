@@ -33,7 +33,11 @@ requirements.
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+The scheduler uses exact time matching depending on the day and HH:MM format. This does not account
+for how long a task may take to complete, and if it overlaps with the next task.
 - Why is that tradeoff reasonable for this scenario?
+We are just looking for a schedule creator, not a way to track how long we take with a specific
+task and what is next.
 
 ---
 

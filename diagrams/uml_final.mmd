@@ -1,0 +1,51 @@
+classDiagram
+    class Task {
+        +str description
+        +str time
+        +str frequency
+        +bool completed
+        +date scheduled_date
+        +str task_id
+        +str pet_name
+        +mark_complete() void
+        +mark_incomplete() void
+        +is_recurring() bool
+        +create_next_occurrence() Task
+    }
+
+    class Pet {
+        +str name
+        +str species
+        +int age
+        +list~Task~ tasks
+        +add_task(task: Task) void
+        +remove_task(task_id: str) bool
+        +get_tasks() list~Task~
+    }
+
+    class Owner {
+        +str name
+        +list~Pet~ pets
+        +add_pet(pet: Pet) void
+        +remove_pet(pet_name: str) bool
+        +get_all_tasks() list~Task~
+    }
+
+    class Scheduler {
+        +list~Task~ schedule
+        +retrieve_tasks(owner: Owner) list~Task~
+        +sort_by_time(tasks: list~Task~) list~Task~
+        +filter_tasks(owner: Owner, completed: bool, pet_name: str) list~Task~
+        +get_recurring_tasks(owner: Owner, frequency: str) list~Task~
+        +detect_conflicts(owner: Owner) list~str~
+        +organize_tasks(owner: Owner) list~Task~
+        +build_schedule(owner: Owner) list~Task~
+        +complete_task(owner: Owner, task_id: str) bool
+    }
+
+    Owner "1" *-- "0..*" Pet : owns
+    Pet "1" *-- "0..*" Task : manages
+    Scheduler ..> Owner : retrieves tasks from
+    Scheduler ..> Pet : completes task for
+    Scheduler ..> Task : sorts, filters, and checks
+    Task ..> Task : creates next occurrence

@@ -69,12 +69,21 @@ cohesive and line up with what we are trying to accomplish with this app.
 **a. What you tested**
 
 - What behaviors did you test?
+I tested the sorting functionality, recurring tasks creating new instances as needed, duplicates being
+found, invalid inputs being handled, and more. There were happy and edge cases.
 - Why were these tests important?
+We need to think like a human and find ways that they would unintentionally break the code to see 
+how we can fix it right now and future-proof it. We also need to make sure that the correct
+features are actually working.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+I am 4/5 stars confident that the scheduler works correctly now. AI can never be 100% confident,
+but I am more confident with my understanding of the code and tests.
 - What edge cases would you test next if you had more time?
+I would test for many owners, many pets, and many tasks. We want to make sure that the data is being
+associated with the correct objects, not being jumbled all over the place.
 
 ---
 
@@ -83,11 +92,20 @@ cohesive and line up with what we are trying to accomplish with this app.
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+I am very satisfied with how I was able to build an app and brainstorm with AI to create the design.
+The UML was the most helpful part because it explained the entirety of the app, and AI helped a lot with that.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+I would add more features that can really future-proof this app. The task ID was the AI's addition, which
+was really smart and helpful. I would add more features to make this app really unique and maybe even add
+a community schedule so that other members can view the schedules of different pets and owners.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+You have to have a strong understanding of what you are building, through a UML, before you start building.
+If you are unsure of the relationships between different classes and the entire outcome of the project,
+then you are not going to have a good time. You need to understand what you are building before you start
+writing code!

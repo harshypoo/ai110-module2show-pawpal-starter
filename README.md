@@ -22,6 +22,16 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## Features
+
+- **Time-based sorting:** Orders validated `HH:MM` task times chronologically with `Scheduler.sort_by_time()`.
+- **Flexible filtering:** Shows tasks by pet, completion status, or both through `Scheduler.filter_tasks()`.
+- **Conflict warnings:** Detects incomplete tasks for the same pet that share a date-and-time slot, then returns a clear warning instead of stopping the app.
+- **Recurring care:** Identifies daily and weekly tasks. Completing one creates a fresh incomplete occurrence for tomorrow or the following week; one-time tasks are not recreated.
+- **Completion tracking:** Lets an owner mark care tasks complete while retaining the completed task in history.
+- **Date-aware task management:** Stores a scheduled date with every task so tasks at the same time on different dates do not conflict.
+- **Streamlit task planner:** Lets an owner create pets and tasks, filter the displayed plan, review recurring care, see conflict warnings, and complete tasks in the browser session.
+
 ## Getting started
 
 ### Setup
@@ -44,16 +54,7 @@ pip install -r requirements.txt
 
 ## 🖥️ Sample Output
 
-Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
-
-```
-Today's Schedule
-==================
-07:30 — Biscuit: Morning walk (daily)
-08:00 — Mochi: Breakfast (daily)
-17:30 — Mochi: Playtime (daily)
-20:00 — Biscuit: Medication (daily)
-```
+Run `python main.py` to see a terminal demonstration of task sorting, filtering, and conflict warnings. A representative output is included in the demo walkthrough below.
 
 ## 🧪 Testing PawPal+
 
@@ -71,10 +72,7 @@ conflicts being detected, and recurring tasks being filtered. It also includes e
 such as equal-time sorting, complete a recurring task twice does not create duplicates,
 completed tasks do not count as conflicts, unkown tasks are False, invalid times are errors,
 and frequency filters handle extra space or reject unsupported values.
-
-I am 4/5 stars confident on this program using the test suite and the code created.
 ```
-
 ============================================================ test session starts ============================================================
 platform darwin -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
 rootdir: /Users/harshpatel/Desktop/AI110/ai110-module2show-pawpal-starter
@@ -108,12 +106,52 @@ All of these come together to organize all tasks that the owner wants for a spec
 
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+The Streamlit app lets a pet owner create or select an owner, add pets, schedule dated care tasks, filter the task list, review recurring tasks, resolve warnings, and mark tasks complete. Completing a daily or weekly task automatically creates its next occurrence.
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+Example workflow:
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+1. Create or select an owner, then add a pet such as Mochi.
+2. Add a task by choosing the pet, entering a description, selecting a date and time, and choosing daily, weekly, or one-time frequency.
+3. Use the pet and completion-status controls to view the relevant tasks in a chronological table.
+4. Review recurring tasks and any warning displayed when one pet has more than one incomplete task at the same date and time.
+5. Select Mark complete for a task. The app keeps it in history and creates the next daily or weekly occurrence when applicable.
+
+The terminal demo shows the same scheduler behaviors: tasks are sorted from earliest to latest, filtering can isolate Biscuit's or completed tasks, and a duplicate Mochi time slot produces a non-blocking warning.
+
+```
+Tasks as entered
+================
+17:30 — Mochi: Playtime (complete)
+08:00 — Mochi: Breakfast (incomplete)
+08:00 — Mochi: Give medication (incomplete)
+20:00 — Biscuit: Medication (incomplete)
+07:30 — Biscuit: Morning walk (incomplete)
+
+Sorted by time
+==============
+07:30 — Biscuit: Morning walk (incomplete)
+08:00 — Mochi: Breakfast (incomplete)
+08:00 — Mochi: Give medication (incomplete)
+17:30 — Mochi: Playtime (complete)
+20:00 — Biscuit: Medication (incomplete)
+
+Biscuit's tasks
+===============
+20:00 — Biscuit: Medication (incomplete)
+07:30 — Biscuit: Morning walk (incomplete)
+
+Completed tasks
+===============
+17:30 — Mochi: Playtime (complete)
+
+Today's incomplete schedule
+===========================
+07:30 — Biscuit: Morning walk (incomplete)
+08:00 — Mochi: Breakfast (incomplete)
+08:00 — Mochi: Give medication (incomplete)
+20:00 — Biscuit: Medication (incomplete)
+
+Schedule warnings
+=================
+Warning: Mochi has multiple tasks on 2026-10-11 at 08:00: Breakfast, Give medication.
+```

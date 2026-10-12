@@ -1,6 +1,6 @@
 """Streamlit interface for creating and scheduling PawPal+ care tasks."""
 
-from datetime import time
+from datetime import date, time
 
 import streamlit as st
 
@@ -29,8 +29,6 @@ if "scheduler" not in st.session_state:
     st.session_state.scheduler = Scheduler()
 if "active_owner_key" not in st.session_state:
     st.session_state.active_owner_key = None
-if "schedule_owner_key" not in st.session_state:
-    st.session_state.schedule_owner_key = None
 
 st.title("🐾 PawPal+")
 st.caption("Create owners, pets, and care tasks that persist during this session.")
@@ -97,6 +95,7 @@ with st.form("task_form", clear_on_submit=True):
     selected_pet_label = st.selectbox("Pet", list(pet_options))
     task_description = st.text_input("Task description", placeholder="e.g., Morning walk")
     task_time = st.time_input("Task time", value=time(hour=8))
+    task_date = st.date_input("Scheduled date", value=date.today())
     task_frequency = st.selectbox("Frequency", ["daily", "weekly", "one-time"])
     create_task = st.form_submit_button("Add task")
 
@@ -108,47 +107,78 @@ if create_task:
             task_description,
             task_time.strftime("%H:%M"),
             task_frequency,
+            scheduled_date=task_date,
         )
         pet_options[selected_pet_label].add_task(task)
         st.success(f"Added {task.description} for {task.pet_name}.")
 
 st.divider()
-st.subheader("Today's Schedule")
-if st.button("Generate schedule"):
-    st.session_state.scheduler.build_schedule(active_owner)
-    st.session_state.schedule_owner_key = selected_owner_key
+st.subheader("4. View and filter tasks")
+filter_pet_labels = ["All pets", *pet_options]
+selected_filter_label = st.selectbox("Filter by pet", filter_pet_labels)
+status_filter = st.selectbox("Filter by status", ["Incomplete", "Completed", "All"])
+completed_filter = {"Incomplete": False, "Completed": True, "All": None}[status_filter]
+filter_pet_name = (
+    None if selected_filter_label == "All pets" else pet_options[selected_filter_label].name
+)
 
-if st.session_state.schedule_owner_key == selected_owner_key:
-    schedule = st.session_state.scheduler.schedule
-    if schedule:
+filtered_tasks = st.session_state.scheduler.filter_tasks(
+    active_owner,
+    completed=completed_filter,
+    pet_name=filter_pet_name,
+)
+filtered_tasks = st.session_state.scheduler.sort_by_time(filtered_tasks)
+
+if filtered_tasks:
+    st.table(
+        [
+            {
+                "Date": task.scheduled_date.isoformat(),
+                "Time": task.time,
+                "Pet": task.pet_name,
+                "Task": task.description,
+                "Frequency": task.frequency,
+                "Completed": task.completed,
+            }
+            for task in filtered_tasks
+        ]
+    )
+else:
+    st.info("No tasks match the current filters.")
+
+recurring_tasks = st.session_state.scheduler.get_recurring_tasks(active_owner)
+if recurring_tasks:
+    with st.expander("Recurring tasks"):
         st.table(
             [
                 {
+                    "Date": task.scheduled_date.isoformat(),
                     "Time": task.time,
                     "Pet": task.pet_name,
                     "Task": task.description,
                     "Frequency": task.frequency,
                 }
-                for task in schedule
+                for task in st.session_state.scheduler.sort_by_time(recurring_tasks)
             ]
         )
-    else:
-        st.info("No incomplete tasks are scheduled for this owner.")
+
+for warning in st.session_state.scheduler.detect_conflicts(active_owner):
+    st.warning(warning)
 
 with st.expander("Current pet tasks"):
     for pet in active_owner.pets:
         st.write(f"**{pet.name} ({pet.species})**")
         if pet.tasks:
-            st.table(
-                [
-                    {
-                        "Task": task.description,
-                        "Time": task.time,
-                        "Frequency": task.frequency,
-                        "Completed": task.completed,
-                    }
-                    for task in pet.tasks
-                ]
-            )
+            for task in st.session_state.scheduler.sort_by_time(pet.get_tasks()):
+                status = "Completed" if task.completed else "Incomplete"
+                st.write(
+                    f"{task.scheduled_date.isoformat()} at {task.time} — "
+                    f"{task.description} ({task.frequency}, {status})"
+                )
+                if not task.completed and st.button(
+                    "Mark complete", key=f"complete_{task.task_id}"
+                ):
+                    st.session_state.scheduler.complete_task(active_owner, task.task_id)
+                    st.rerun()
         else:
             st.caption("No tasks yet.")

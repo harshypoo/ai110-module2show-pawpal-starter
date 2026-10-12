@@ -94,7 +94,7 @@ tests/test_pawpal.py ...................                                        
 | Filtering | Scheduler.filter_tasks() | Filters tasks by copmletion status, pet name, or both. |
 | Conflict handling | Scheduler.detect_conflicts() | Displays warning message when same pet has multiple 
 incomplete tasks on same day and time. Different pets or dates do not conflict. |
-| Recurring tasks | Task.is_recurring() and Task.create_next_occurence() and Scheduler.get_recurring_tasks() 
+| Recurring tasks | Task.is_recurring() and Task.create_next_occurrence() and Scheduler.get_recurring_tasks() 
 and Scheduler.complete_task() | Daily and weekly tasks new instance after completion unless it's one-time. |
 
 ## Implementation Summary
